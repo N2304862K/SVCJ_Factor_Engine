@@ -2,6 +2,7 @@
 from setuptools import setup, Extension
 import numpy
 
+# Define the C extension module
 extensions = [
     Extension(
         "svcj_wrapper",                      
@@ -11,14 +12,15 @@ extensions = [
     )
 ]
 
+# Read the contents of your README file for the package description
 from pathlib import Path
 this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(
     name='svcj_fast_factors',
-    version='0.2.0', 
-    author="N2304862K", 
+    version='0.2.0', # Incremented version
+    author="N2304862K", # Your GitHub username
     description="A high-performance C/Cython SVCJ factor generation library.",
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -28,7 +30,8 @@ setup(
     
     install_requires=[
         "numpy>=1.20",
-        "pandas>=1.3"
+        "pandas>=1.3",
+        "yfinance>=0.1.70"
     ],
     
     classifiers=[
