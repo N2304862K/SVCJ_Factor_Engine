@@ -6,7 +6,10 @@ void svcj_single_step_estimate_qmle(
     const double* returns_array, int N, const double* initial_params, double* estimated_params
 ) {
     double mean_ret = 0.0, var_ret = 0.0;
-    for (int i = 0; i < N; i++) { mean_ret += returns_array[i]; var_ret += returns_array[i] * returns_array[i]; }
+    for (int i = 0; i < N; i++) {
+        mean_ret += returns_array[i];
+        var_ret += returns_array[i] * returns_array[i];
+    }
     mean_ret /= N;
     var_ret = (var_ret / N) - (mean_ret * mean_ret);
     double annual_vol = sqrt(var_ret * 252.0);
@@ -14,6 +17,7 @@ void svcj_single_step_estimate_qmle(
     double kappa_est = 1.5 + (annual_vol - 0.2) * 8.0; 
     double sigma_v_est = 0.3 + (annual_vol - 0.2) * 3.0;
     double lambda_est = 0.1 + (annual_vol - 0.2) * 2.0;
+
     estimated_params[0] = initial_params[0];
     estimated_params[1] = initial_params[1] * 0.1 + kappa_est * 0.9;
     estimated_params[2] = initial_params[2] * 0.1 + theta_est * 0.9;
@@ -33,7 +37,9 @@ int svcj_full_rolling_fit_2d(
     double* single_asset_returns = (double*)malloc(total_T * sizeof(double));
     if (single_asset_returns == NULL) return -1;
     for (int a = 0; a < total_A; ++a) {
-        for (int t = 0; t < total_T; ++t) { single_asset_returns[t] = full_returns_matrix[t * total_A + a]; }
+        for (int t = 0; t < total_T; ++t) {
+            single_asset_returns[t] = full_returns_matrix[t * total_A + a];
+        }
         double current_params[NUM_PARAMS];
         memcpy(current_params, initial_params, NUM_PARAMS * sizeof(double));
         roll_count = 0;
