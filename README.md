@@ -9,4 +9,4 @@ The core solver is written in C and wrapped with Cython to provide a simple, hig
 You can install the package directly from GitHub:
 
 ```bash
-pip install git+https://github.com/your_username/svcj_factor_engine.git
+pip install git+https://github.com/N2304862K/SVCJ_Factor_Engine.git
