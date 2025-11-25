@@ -1,41 +1,42 @@
+# svcj_fast_factors/setup.py
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 import numpy
 
-extensions = [Extension("svcj_wrapper", sources=["svcj_wrapper.pyx", "svcjmath.c"], include_dirs=[numpy.get_include()], extra_compile_args=["-O3"])]
-
-with open("README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# Define the C extension module
+extensions = [
+    Extension(
+        "svcj_wrapper",                      # The name of the Python module
+        sources=["svcj_wrapper.pyx", "src/svcjmath.c"], # Source files
+        include_dirs=[numpy.get_include(), "src"], # Include paths for .h and .c
+        extra_compile_args=["-O3"]           # Optimization flag for speed
+    )
+]
 
 setup(
-    name='svcj-factor-engine',
-    version='1.0.0',
-    author='JTPC',
-    author_email='tpcheung@gmail.com',
-    description='A high-performance engine for generating SVCJ factors.',
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url='https://github.com/N2304862K/SVCJ_Factor_Engine.git',
-    packages=find_packages(),
+    name='svcj_fast_factors',
+    version='0.1.0',
+    packages=['svcj_fast_factors'], # This allows it to be installed as a package
     ext_modules=cythonize(extensions),
     install_requires=[
-        'numpy',
-        'pandas'
+        "numpy>=1.20",
+        "pandas>=1.3",
+        "yfinance>=0.1.70",
+        "Cython>=0.29"
     ],
-    
-    setup_requires=[
-        'setuptools>=18.0',
-        'cython>=0.29',
-        'numpy'
-    ],
-    
+    author="JTPC",
+    description="A high-performance C/Cython SVCJ factor generation library.",
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
+    url="https://github.com/N2304862K/SVCJ_Factor_Engine", # Replace with your repo
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Intended Audience :: Developers",
         "Intended Audience :: Financial and Insurance Industry",
-        "Topic :: Office/Business :: Financial :: Investment",
+        "Topic :: Office/Business :: Financial",
+        "Topic :: Software Development :: Libraries :: Python Modules"
     ],
-    
     python_requires='>=3.8',
 )
