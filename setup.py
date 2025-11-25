@@ -18,7 +18,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 setup(
-    name='svcj_fast_factors',
+    name='svcj_engine',
     version='0.2.0', # Incremented version
     author="N2304862K", # Your GitHub username
     description="A high-performance C/Cython SVCJ factor generation library.",
