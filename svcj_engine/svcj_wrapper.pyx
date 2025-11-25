@@ -14,10 +14,7 @@ def generate_svcj_factor_matrix(
     int window_size, 
     int step_size
 ) -> pd.DataFrame:
-    """
-    Accepts a pandas DataFrame of log returns, runs the high-speed C core,
-    and returns a fully formatted pandas DataFrame of SVCJ factors.
-    """
+
     # 1. Extract data and labels from the input DataFrame
     cdef np.ndarray[np.float64_t, ndim=2] returns_matrix = log_returns_df.values
     asset_names = log_returns_df.columns.tolist()
@@ -34,13 +31,13 @@ def generate_svcj_factor_matrix(
         total_T, total_A, window_size, step_size, &output_buffer[0]
     )
     
-    # 3. Perform all formatting internally
+    # 3. formatting 
     cdef np.ndarray[np.float64_t, ndim=3] drift_tensor_3d = \
         output_buffer[:actual_rolls * total_A * NUM_PARAMS].reshape(actual_rolls, total_A, NUM_PARAMS)
     
     cdef np.ndarray[np.float64_t, ndim=2] final_matrix_2d = drift_tensor_3d.reshape(actual_rolls, -1)
     
-    # 4. Construct the final, clean DataFrame
+    # 4. Construct DataFrame
     param_names = ['mu', 'kappa', 'theta', 'sigma_v', 'rho', 'lambda', 'mu_J', 'sigma_J']
     final_columns = [f'{asset}_{factor}' for asset in asset_names for factor in param_names]
     
