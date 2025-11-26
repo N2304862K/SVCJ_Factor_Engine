@@ -1,35 +1,36 @@
 import os
+import numpy
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
-# --- Custom Build Step to Handle NumPy Include Path ---
+# Custom builder to handle numpy headers safely
 class BuildExt(build_ext):
     def run(self):
-        import numpy
         self.include_dirs.append(numpy.get_include())
+        # FIX: Add the local source directory so compiler finds svcjmath.h
+        self.include_dirs.append(os.path.join(os.path.dirname(__file__), "src", "svcj_estimator"))
         super().run()
 
-# --- Define Extension ---
-# Note: We use relative paths assuming the 'src' layout
 extensions = [
     Extension(
-        name="svcj_estimator._core",
+        name="svcj_estimator._core", 
         sources=[
             "src/svcj_estimator/_core.pyx",
             "src/svcj_estimator/svcjmath.c"
         ],
-        # We do NOT put include_dirs here; we handle it in BuildExt
-        extra_compile_args=["-O3"], 
+        # Do not define include_dirs here, the BuildExt handles it
+        extra_compile_args=["-O3"],
         language="c"
     )
 ]
 
-# --- Main Setup ---
 setup(
     name="svcj_estimator",
+    version="0.1.0",
+    description="High-performance SVCJ factor engine",
     packages=["svcj_estimator"],
     package_dir={"": "src"},
     ext_modules=extensions,
-    cmdclass={'build_ext': BuildExt}, # Use our custom builder
+    cmdclass={'build_ext': BuildExt},
     zip_safe=False,
 )
