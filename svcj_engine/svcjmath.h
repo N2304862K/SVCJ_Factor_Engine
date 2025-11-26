@@ -1,9 +1,11 @@
-// svcj_fast_factors/src/svcjmath.h
+// File: svcj_engine/svcjmath.h
+
 #ifndef SVCJMATH_H
 #define SVCJMATH_H
 
 #define NUM_PARAMS 8
 
+// Function signature for the single-window QMLE solver
 void svcj_single_step_estimate_qmle(
     const double* returns_array, 
     int N, 
@@ -11,6 +13,7 @@ void svcj_single_step_estimate_qmle(
     double* estimated_params
 );
 
+// Function signature for the high-speed C core that handles the 2D matrix
 int svcj_full_rolling_fit_2d(
     const double* full_returns_matrix,
     int total_T,

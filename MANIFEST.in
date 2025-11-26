@@ -1,4 +1,8 @@
-# MANIFEST.in
-# Recursively include all files within the package directory
-recursive-include svcj_fast_factors *
-include README.md
+# File: MANIFEST.in
+
+# This file tells setuptools to include non-Python files in the
+# source distribution (sdist). Without this, the .c and .h files
+# would be missing during a remote `pip install`, causing compilation to fail.
+
+include svcj_engine/*.h
+include svcj_engine/*.c

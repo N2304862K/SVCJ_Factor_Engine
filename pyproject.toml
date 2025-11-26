@@ -1,9 +1,14 @@
-# pyproject.toml
+# File: pyproject.toml
+
+# This file specifies the build system requirements for the package.
+# It tells pip that it needs to install setuptools and cython *before*
+# attempting to build the C extension from source. This is crucial for
+# a successful remote installation via `pip install git+...`.
+
 [build-system]
 requires = [
     "setuptools>=61.0",
-    "wheel",
-    "Cython>=0.29",
-    "numpy>=1.20"
+    "cython>=0.29.0",
+    "numpy>=1.20.0"
 ]
 build-backend = "setuptools.build_meta"
