@@ -1,6 +1,6 @@
+include pyproject.toml
+include setup.py
 include svcj_engine/*.h
 include svcj_engine/*.c
 include svcj_engine/*.pyx
-include pyproject.toml
-include setup.py
 global-exclude *.py[cod]
