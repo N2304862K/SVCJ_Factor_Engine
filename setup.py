@@ -3,23 +3,24 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
-# --- Lazy Cythonization ---
-# This wrapper function ensures that cythonize is only called when
-# the extension is actually being built, not at import time.
-def lazy_cythonize(extensions):
-    def _cythonize(dist, attr, value):
-        from Cython.Build import cythonize
-        dist.ext_modules = cythonize(extensions, force=True)
-    return _cythonize
-
-# A custom build_ext class to handle lazy NumPy inclusion
+# This custom build_ext class is the key to solving the build dependency issues.
+# It ensures that Cython and NumPy are imported only when they are actually needed.
 class CustomBuildExt(build_ext):
+    def run(self):
+        # Lazy import of Cython and run the cythonize command
+        from Cython.Build import cythonize
+        # This converts the .pyx file into a .c file
+        self.extensions = cythonize(self.extensions, force=True, language_level=3)
+        # Continue with the standard build process
+        build_ext.run(self)
+        
     def finalize_options(self):
         build_ext.finalize_options(self)
-        # Prevent `numpy` from being imported before it's installed.
-        # This is a critical step for modern packaging.
+        # This is a standard hack to prevent NumPy from being imported before
+        # it has been installed by the build process.
         __builtins__.__NUMPY_SETUP__ = False
         import numpy
+        # Add the NumPy include directory to the compiler's search path
         self.include_dirs.append(numpy.get_include())
 
 # Define the C extension module
@@ -30,25 +31,24 @@ extensions = [
             "svcj_engine/svcj_wrapper.pyx", 
             "svcj_engine/svcjmath.c"
         ], 
-        # Note: include_dirs is now handled by CustomBuildExt
+        # The include_dirs is now handled dynamically by CustomBuildExt
         extra_compile_args=["-O3"]
     )
 ]
 
 setup(
     name='svcj_factor_engine',
-    version='1.0.3', # Bump version for the definitive fix
+    version='1.1.0', # Bump version for the definitive fix
     author='N2304862K',
     description='A high-speed engine for generating SVCJ risk factors from financial time series data.',
     packages=['svcj_engine'],
-    # ext_modules is now set lazily via the setup attribute
+    # The custom build class is registered with setuptools here
+    cmdclass={'build_ext': CustomBuildExt},
+    # The extensions are passed directly to setuptools
+    ext_modules=extensions,
     install_requires=[
         'numpy>=1.20.0',
         'pandas>=1.3.0',
     ],
-    # The key change: use setup attributes to control the build process
-    setup_requires=['cython', 'numpy'],
-    cmdclass={'build_ext': CustomBuildExt},
-    attrs={'ext_modules': lazy_cythonize(extensions)},
     zip_safe=False,
 )
