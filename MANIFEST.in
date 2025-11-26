@@ -1,0 +1,5 @@
+graft src
+include src/svcj_estimator/*.c
+include src/svcj_estimator/*.h
+include src/svcj_estimator/*.pyx
+global-exclude *.py[cod]

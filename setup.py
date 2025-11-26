@@ -1,28 +1,35 @@
-import numpy
+import os
 from setuptools import setup, Extension
-from Cython.Build import cythonize
+from setuptools.command.build_ext import build_ext
 
-# Define the C Extension
+# --- Custom Build Step to Handle NumPy Include Path ---
+class BuildExt(build_ext):
+    def run(self):
+        import numpy
+        self.include_dirs.append(numpy.get_include())
+        super().run()
+
+# --- Define Extension ---
+# Note: We use relative paths assuming the 'src' layout
 extensions = [
     Extension(
-        name="svcj_estimator._core",  # Compiles to svcj_estimator._core
+        name="svcj_estimator._core",
         sources=[
-            "src/svcj_estimator/_core.pyx", 
+            "src/svcj_estimator/_core.pyx",
             "src/svcj_estimator/svcjmath.c"
         ],
-        include_dirs=[numpy.get_include()],  # Solves 'numpy/arrayobject.h' error
-        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
-        extra_compile_args=["-O3"], # Optimization flags
+        # We do NOT put include_dirs here; we handle it in BuildExt
+        extra_compile_args=["-O3"], 
         language="c"
     )
 ]
 
+# --- Main Setup ---
 setup(
     name="svcj_estimator",
     packages=["svcj_estimator"],
     package_dir={"": "src"},
-    ext_modules=cythonize(
-        extensions, 
-        compiler_directives={'language_level': "3"} # Force Python 3
-    ),
+    ext_modules=extensions,
+    cmdclass={'build_ext': BuildExt}, # Use our custom builder
+    zip_safe=False,
 )
