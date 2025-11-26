@@ -1,27 +1,18 @@
 [build-system]
 requires = [
     "setuptools>=61.0",
-    "cython>=0.29.0",
-    "numpy>=1.21.0"
+    "wheel",
+    "Cython>=0.29",
+    "numpy>=1.21"  # Ensures numpy headers are available during build
 ]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "svcj_engine"
-version = "1.0.0"
-authors = [
-  { name="N2304862K" },
-]
-description = "A high-performance engine for generating SVCJ risk factors."
-readme = "README.md"
-license = { file="LICENSE" }
-requires-python = ">=3.8"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
+name = "svcj_estimator"
+version = "0.1.0"
+description = "High-performance SVCJ factor generation using C/Cython"
 dependencies = [
-    "numpy>=1.21.0",
-    "pandas>=1.3.0",
+    "numpy>=1.21",
+    "pandas>=1.3"
 ]
+requires-python = ">=3.8"

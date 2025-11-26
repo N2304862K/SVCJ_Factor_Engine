@@ -1,36 +1,28 @@
+import numpy
 from setuptools import setup, Extension
 from Cython.Build import cythonize
-import numpy
 
-# Define the C extension module that will be compiled
+# Define the C Extension
 extensions = [
     Extension(
-        # The name must match the .pyx file and the package structure
-        "svcj_engine._svcj_wrapper", 
+        name="svcj_estimator._core",  # Compiles to svcj_estimator._core
         sources=[
-            "src/svcj_engine/_svcj_wrapper.pyx", 
-            "src/svcj_engine/svc_jcore.c"
+            "src/svcj_estimator/_core.pyx", 
+            "src/svcj_estimator/svcjmath.c"
         ],
-        include_dirs=[numpy.get_include()],
-        extra_compile_args=["-O3"] # Maximum optimization for speed
+        include_dirs=[numpy.get_include()],  # Solves 'numpy/arrayobject.h' error
+        define_macros=[("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION")],
+        extra_compile_args=["-O3"], # Optimization flags
+        language="c"
     )
 ]
 
-# The setup call
 setup(
-    ext_modules=cythonize(extensions),
-    # Most metadata is now in pyproject.toml
-)```
-
-#### 5. `src/svcj_engine/__init__.py`
-This file makes the `svcj_engine` directory a Python package and provides the clean, high-level `generate_factors` function to the user.
-
-```python
-# src/svcj_engine/__init__.py
-
-# Import the core function from the compiled Cython module
-# and expose it at the top level of the package.
-from ._svcj_wrapper import generate_svcj_factor_matrix as generate_factors
-
-# This allows the user to simply write:
-# from svcj_engine import generate_factors
+    name="svcj_estimator",
+    packages=["svcj_estimator"],
+    package_dir={"": "src"},
+    ext_modules=cythonize(
+        extensions, 
+        compiler_directives={'language_level': "3"} # Force Python 3
+    ),
+)
