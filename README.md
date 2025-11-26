@@ -7,7 +7,6 @@ Designed for large-scale **Factor Discovery** and **Financial Machine Learning**
 ---
 
 ## Features
-
 *   **Black-Box Design:** No complex configuration. Pass a raw DataFrame of log returns; get back a clean DataFrame of stationary risk factors.
 *   **C-Level Performance:** Core logic is implemented in C and optimized with Cython, handling multi-asset rolling windows in milliseconds.
 *   **Stationary Features:** Converts non-stationary price data into 8 stationary, asset-relative parameters (e.g., `sigma_v`, `kappa`, `lambda`) ideal for ML inputs.
