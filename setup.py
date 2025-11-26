@@ -2,23 +2,17 @@ import os
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
-# --- 1. The Lazy NumPy Fix ---
+# The "Deferred Import" Pattern
 class BuildExt(build_ext):
     def run(self):
-        # Only import numpy here, inside the build process
         import numpy
-        
-        # Add NumPy headers to include_dirs
+        # Add NumPy headers to the include path dynamically
         self.include_dirs.append(numpy.get_include())
-        
-        # Add the package directory to include_dirs so svcjmath.h is found
-        # We use abspath to ensure it works regardless of where pip runs from
-        package_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "svcj_engine")
-        self.include_dirs.append(package_dir)
-        
+        # Add the local source directory so svcjmath.h is found
+        self.include_dirs.append(os.path.join(os.path.dirname(__file__), "svcj_engine"))
         super().run()
 
-# --- 2. Define the Extension ---
+# Define Extension WITHOUT include_dirs (BuildExt handles it)
 extensions = [
     Extension(
         name="svcj_engine._core",
@@ -26,18 +20,17 @@ extensions = [
             "svcj_engine/_core.pyx",
             "svcj_engine/svcjmath.c"
         ],
-        # Do not put include_dirs here; BuildExt handles it
-        # No extra compile args (safe for all platforms)
+        # Safe compile args for Linux/Mac/Windows
+        extra_compile_args=[], 
         language="c"
     )
 ]
 
-# --- 3. Setup ---
 setup(
     name="svcj_engine",
     version="1.0.0",
     packages=["svcj_engine"],
-    ext_modules=extensions,
-    cmdclass={'build_ext': BuildExt},
+    ext_modules=extensions, # Pass the extension objects
+    cmdclass={'build_ext': BuildExt}, # Use our custom builder
     zip_safe=False,
 )
