@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import yfinance as yf
-import svcj_wrapper # This import works after compilation
+import svcj_wrapper 
 
 def run_pipeline():
     tickers = ['AAPL', 'TSLA', 'MSFT']
