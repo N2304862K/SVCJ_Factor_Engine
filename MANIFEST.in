@@ -1,5 +1,4 @@
-graft src
-include src/svcj_estimator/*.h
-include src/svcj_estimator/*.c
-include src/svcj_estimator/*.pyx
+recursive-include svcj_estimator *.c *.h *.pyx
+include pyproject.toml
+include setup.py
 global-exclude *.py[cod]

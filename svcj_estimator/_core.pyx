@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 cimport numpy as np
 
-# Use quotes to include the local header file
+# Quotes "" force the compiler to look in the current directory
 cdef extern from "svcjmath.h":
     int svcj_full_rolling_fit_2d(const double*, int, int, int, int, double*)
     int NUM_PARAMS
