@@ -8,7 +8,6 @@ def run_pipeline():
     data = yf.download(tickers, start='2022-01-01', end='2023-12-31', progress=False)['Adj Close']
     log_returns = np.log(data / data.shift(1)).dropna(how='all').fillna(0)
     
-    # Single call DataFrame In -> DataFrame Out
     factors = svcj_wrapper.generate_svcj_factor_matrix(log_returns, window_size=126, step_size=5)
     
     print(f"Done. Output Shape: {factors.shape}")

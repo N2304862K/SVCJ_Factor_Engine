@@ -1,7 +1,6 @@
 from setuptools import setup, Extension
 from Cython.Build import cythonize
 import numpy
-
 extensions = [
     Extension(
         "svcj_wrapper", 

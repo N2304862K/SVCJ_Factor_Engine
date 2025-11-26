@@ -6,14 +6,14 @@ Designed for large-scale **Factor Discovery** and **Financial Machine Learning**
 
 ---
 
-## 🚀 Key Features
+## Features
 
 *   **Black-Box Design:** No complex configuration. Pass a raw DataFrame of log returns; get back a clean DataFrame of stationary risk factors.
 *   **C-Level Performance:** Core logic is implemented in C and optimized with Cython, handling multi-asset rolling windows in milliseconds.
 *   **Stationary Features:** Converts non-stationary price data into 8 stationary, asset-relative parameters (e.g., `sigma_v`, `kappa`, `lambda`) ideal for ML inputs.
 *   **Robust QMLE:** Uses a Quasi-Maximum Likelihood Estimation approach with robust heuristics to ensure financial stability (no `NaN`s or numerical explosions).
 
-## 🛠️ Installation
+## Installation
 
 This project requires a C compiler and the Python development headers.
 
@@ -32,7 +32,7 @@ python setup.py build_ext --inplace
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ```python
 import yfinance as yf
@@ -55,7 +55,7 @@ print(factor_df.head())
 
 ---
 
-## 📊 Output Factors
+## Output Factors
 
 For every asset provided, the engine generates 8 stationary risk factors:
 
@@ -70,7 +70,7 @@ For every asset provided, the engine generates 8 stationary risk factors:
 | **`mu`** | Drift | Constant drift component. | Trend bias. |
 | **`sigma_J`** | Jump Volatility | Variance of the jump size distribution. | Tail fatness. |
 
-## 📐 Architecture
+## Architecture
 
 The system follows a strict high-performance architecture:
 
@@ -82,10 +82,10 @@ The system follows a strict high-performance architecture:
     *   Executes Robust QMLE Solver (Heuristic Estimation).
 4.  **Python Output:** Reshapes the flat C-tensor into a labeled Multi-Index DataFrame.
 
-## ⚠️ Notes
+## Notes
 
 *   **Heuristic Solver:** To ensure speed and stability for thousands of assets, the QMLE solver uses robust, data-driven heuristics rather than a full non-linear optimization (which is slow and prone to failure on noisy financial data).
 *   **Data Prep:** Ensure your input DataFrame contains **Log Returns**, not prices. NaNs should be filled (e.g., with 0) before passing to the engine.
 
-## 📄 License
+## License
 MIT
