@@ -1,0 +1,18 @@
+# File: .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyd
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+wheels/
+wheelhouse/
+
+# Cython
+svcj_engine/svcj_wrapper.c

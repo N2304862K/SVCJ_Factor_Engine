@@ -20,22 +20,19 @@ def generate_svcj_factor_matrix(
 
     Accepts a pandas DataFrame of log returns, runs the C core, and returns
     a fully formatted pandas DataFrame containing the time-series of risk factors.
-
-    Args:
-        log_returns_df (pd.DataFrame): DataFrame with dates as index and assets
-            as columns, containing log returns.
-        window_size (int): The rolling window size in days.
-        step_size (int): The step size for the rolling window in days.
-
-    Returns:
-        pd.DataFrame: A T x (A x F) DataFrame containing the time-series of
-            the 8 estimated SVCJ factors for each asset.
     """
     cdef np.ndarray[np.float64_t, ndim=2] returns_matrix = log_returns_df.values
     asset_names = log_returns_df.columns.tolist()
     
     cdef int total_T = returns_matrix.shape[0]
     cdef int total_A = returns_matrix.shape[1]
+    
+    if total_T < window_size:
+        raise ValueError(
+            f"Input data has {total_T} time steps, which is less than "
+            f"the required window_size of {window_size}."
+        )
+    
     cdef int max_rolls = (total_T - window_size) // step_size + 1
     
     cdef np.ndarray[np.float64_t, ndim=1] output_buffer = np.zeros(max_rolls * total_A * NUM_PARAMS, dtype=np.float64)
@@ -49,7 +46,6 @@ def generate_svcj_factor_matrix(
         output_buffer[:actual_rolls * total_A * NUM_PARAMS].reshape(actual_rolls, total_A, NUM_PARAMS)
     
     cdef np.ndarray[np.float64_t, ndim=3] transposed_tensor = np.transpose(drift_tensor_3d, (0, 1, 2))
-    
     cdef np.ndarray[np.float64_t, ndim=2] final_matrix_2d = transposed_tensor.reshape(actual_rolls, -1)
     
     param_names = ['mu', 'kappa', 'theta', 'sigma_v', 'rho', 'lambda', 'mu_J', 'sigma_J']

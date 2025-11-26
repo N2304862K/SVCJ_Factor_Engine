@@ -1,61 +1,59 @@
 # File: .github/workflows/build_wheels.yml
-# This GitHub Actions workflow automates the process of building the compiled
-# wheels for Linux, macOS, and Windows across multiple Python versions.
+# This workflow uses the industry-standard `cibuildwheel` to build
+# robust, portable binary wheels for Linux, macOS, and Windows.
 
-name: Build Compiled Wheels
+name: Build and Release Wheels
 
-# --- Trigger ---
-# This workflow runs automatically whenever you create a new release on GitHub.
 on:
+  # Run automatically when a new release is created on GitHub
   release:
     types: [published]
-  # Allows you to run this workflow manually from the Actions tab
+  # Allow manual triggering from the GitHub Actions tab
   workflow_dispatch:
 
 jobs:
-  build_wheels:
-    name: Build wheel for ${{ matrix.os }} on Python ${{ matrix.python-version }}
+  build_and_release:
+    name: Build wheels for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
-    # --- Build Matrix ---
-    # Defines all the combinations of Operating Systems and Python versions
-    # that the wheels will be built for.
     strategy:
       matrix:
+        # Define the operating systems to build on
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
 
     steps:
-      # 1. Check out the repository code
       - name: Check out repository
         uses: actions/checkout@v4
 
-      # 2. Set up the specific Python version for the current job
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      # The core of the workflow: use cibuildwheel
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.16.5
+        # Environment variables can be used to configure the build
+        # env:
+        #   CIBW_BUILD: "cp38-*"  # Example: build only for Python 3.8
+
+      # This step takes the wheels built by cibuildwheel (located in ./wheelhouse)
+      # and uploads them directly to the GitHub Release that triggered the workflow.
+      - name: Upload wheels to GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          python-version: ${{ matrix.python-version }}
+          files: ./wheelhouse/*.whl```
 
-      # 3. Install build dependencies
-      # This step ensures pip, wheel, and the build requirements from pyproject.toml
-      # are installed before the build starts.
-      - name: Install build dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install wheel
+---
 
-      # 4. Build the wheel
-      # This command tells pip to build a wheel for the project in the current directory (.)
-      # and place the resulting .whl file into a directory named "wheels".
-      - name: Build wheel
-        run: |
-          pip wheel . --wheel-dir ./wheels
+### `pyproject.toml`
 
-      # 5. Upload the compiled wheel as an artifact
-      # This step saves the generated .whl file from the temporary runner machine
-      # and makes it available for download on the GitHub Actions summary page.
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: wheels-${{ matrix.os }}-${{ matrix.python-version }}
-          path: ./wheels
+```toml
+# File: pyproject.toml
+# Specifies the build system and its dependencies. This is the modern
+# standard (PEP 517/518) that tells pip what to install *before*
+# trying to run setup.py.
+
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "wheel",
+    "cython>=0.29.0",
+    "numpy>=1.20.0"
+]
+build-backend = "setuptools.build_meta"
