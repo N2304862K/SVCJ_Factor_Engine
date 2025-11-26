@@ -1,4 +1,0 @@
-include pyproject.toml
-include setup.py
-recursive-include svcj_engine *.c *.h *.pyx
-global-exclude *.py[cod]
