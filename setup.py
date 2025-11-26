@@ -1,12 +1,10 @@
-# File: setup.py (The Definitive Solution)
+# File: setup.py
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 
-# --- The "Numpy-Aware" Build Extension ---
-# This class ensures that numpy is imported only when it's absolutely needed.
-# It's the canonical way to solve the "numpy.get_include()" problem during
-# a pip install of a Cython package.
+# This class ensures numpy is available when the extension is being built,
+# solving the classic "numpy.get_include()" problem during installation.
 class build_ext(_build_ext):
     def finalize_options(self):
         _build_ext.finalize_options(self)
@@ -23,18 +21,18 @@ extensions = [
             "svcj_engine/svcj_wrapper.pyx", 
             "svcj_engine/svcjmath.c"
         ], 
-        # The include_dirs will be populated by the class above at build time
+        # The include_dirs will be populated by the class above at build time.
         extra_compile_args=["-O3"]
     )
 ]
 
-# Read the contents of the README file for the long description
+# Read the README for the long description
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name='svcj_factor_engine',
-    version='1.2.0', # Bump version for the critical build fix
+    version='1.2.1', # It's good practice to bump the version for each release
     author='N2304862K',
     description='A high-speed engine for generating SVCJ risk factors from financial time series data.',
     long_description=long_description,
@@ -48,13 +46,8 @@ setup(
         'numpy>=1.20.0',
         'pandas>=1.3.0',
     ],
-    # setup_requires is still a good fallback for some environments
+    # This is a fallback for older build environments
     setup_requires=['numpy'],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
     python_requires='>=3.8',
     zip_safe=False,
 )

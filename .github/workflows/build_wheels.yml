@@ -1,59 +1,39 @@
 # File: .github/workflows/build_wheels.yml
-# This workflow uses the industry-standard `cibuildwheel` to build
-# robust, portable binary wheels for Linux, macOS, and Windows.
 
 name: Build and Release Wheels
 
+# This workflow runs automatically when you create a new release on GitHub.
 on:
-  # Run automatically when a new release is created on GitHub
   release:
     types: [published]
-  # Allow manual triggering from the GitHub Actions tab
+  # Allows you to run this workflow manually from the Actions tab for testing.
   workflow_dispatch:
 
 jobs:
-  build_and_release:
-    name: Build wheels for ${{ matrix.os }}
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        # Define the operating systems to build on
+        # Define the operating systems to build on.
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - name: Check out repository
+      - name: Check out the repository code
         uses: actions/checkout@v4
 
-      # The core of the workflow: use cibuildwheel
-      - name: Build wheels
-        uses: pypa/cibuildwheel@v2.16.5
-        # Environment variables can be used to configure the build
-        # env:
-        #   CIBW_BUILD: "cp38-*"  # Example: build only for Python 3.8
+      # This is the industry-standard action for building portable wheels.
+      # It creates isolated environments for each Python version and OS,
+      # installs build dependencies, and compiles the code correctly.
+      - name: Build wheels with cibuildwheel
+        uses: pypa/cibuildwheel@v2.17.0
+        # The wheels will be placed in the ./wheelhouse directory.
 
-      # This step takes the wheels built by cibuildwheel (located in ./wheelhouse)
-      # and uploads them directly to the GitHub Release that triggered the workflow.
+      # This action takes all the .whl files from the ./wheelhouse directory
+      # and uploads them as assets to the GitHub Release that triggered this workflow.
+      # This makes them publicly downloadable.
       - name: Upload wheels to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ./wheelhouse/*.whl```
-
----
-
-### `pyproject.toml`
-
-```toml
-# File: pyproject.toml
-# Specifies the build system and its dependencies. This is the modern
-# standard (PEP 517/518) that tells pip what to install *before*
-# trying to run setup.py.
-
-[build-system]
-requires = [
-    "setuptools>=61.0",
-    "wheel",
-    "cython>=0.29.0",
-    "numpy>=1.20.0"
-]
-build-backend = "setuptools.build_meta"
+          # This tells the action to upload all files matching the pattern.
+          files: ./wheelhouse/*.whl
