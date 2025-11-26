@@ -14,7 +14,6 @@ void svcj_single_step_estimate_qmle(
     mean_ret /= N;
     var_ret = (var_ret / N) - (mean_ret * mean_ret);
     
-    // Heuristics based on annualized volatility
     double annual_vol = sqrt(var_ret * 252.0);
     double theta_est = annual_vol * annual_vol;
     double kappa_est = 1.5 + (annual_vol - 0.2) * 8.0; 

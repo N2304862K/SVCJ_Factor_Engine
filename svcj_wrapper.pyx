@@ -9,10 +9,6 @@ cdef extern from "svcjmath.h":
     int NUM_PARAMS
 
 def generate_svcj_factor_matrix(object log_returns_df, int window_size, int step_size):
-    """
-    Accepts a pandas DataFrame (T x A), runs the C core, 
-    and returns a fully formatted pandas DataFrame (T x (A*F)).
-    """
     # 1. Prepare Inputs
     cdef np.ndarray[np.float64_t, ndim=2] returns_matrix = log_returns_df.values.astype(np.float64)
     asset_names = log_returns_df.columns.tolist()

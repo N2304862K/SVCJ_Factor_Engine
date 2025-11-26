@@ -2,8 +2,6 @@
 #define SVCJMATH_H
 
 #define NUM_PARAMS 8
-
-// Internal single-window solver
 void svcj_single_step_estimate_qmle(const double*, int, const double*, double*);
 
 // Main rolling loop function
