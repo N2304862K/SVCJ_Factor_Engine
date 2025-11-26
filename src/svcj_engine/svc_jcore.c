@@ -1,6 +1,5 @@
-// File: svcj_engine/svcjmath.c
-
-#include "svcjmath.h"
+// src/svcj_engine/svc_jcore.c
+#include "svc_jcore.h"
 #include <math.h>
 #include <string.h> 
 #include <stdlib.h>
@@ -32,6 +31,7 @@ void svcj_single_step_estimate_qmle(
     estimated_params[7] = initial_params[7];
     for(int i=1; i<8; ++i) { if(estimated_params[i] < 1e-6) estimated_params[i] = 1e-6; }
 }
+
 int svcj_full_rolling_fit_2d(
     const double* full_returns_matrix, int total_T, int total_A,
     int window_size, int step_size, double* output_drift_tensor

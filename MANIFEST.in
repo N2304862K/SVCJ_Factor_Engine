@@ -1,5 +1,0 @@
-# File: MANIFEST.in
-# Ensures non-Python source files (.c, .h) are included in the source distribution.
-
-include svcj_engine/*.h
-include svcj_engine/*.c

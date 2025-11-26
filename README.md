@@ -1,81 +1,77 @@
 # SVCJ Factor Engine
 
-A high-speed, pre-compiled engine for generating time-varying SVCJ (Stochastic Volatility with Correlated Jumps) risk factors from financial time series data.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-This package is designed for large-scale quantitative analysis and factor discovery, where a robust and financially sensible set of stationary features is required for downstream machine learning models. The core computational engine is written in C and wrapped with Cython for maximum performance, while the interface is a simple, user-friendly Python function that works directly with pandas DataFrames.
+A high-performance, C/Cython-accelerated engine for generating stationary, asset-relative SVCJ (Stochastic Volatility with Correlated Jumps) risk factors from a time-series of financial returns.
+
+This tool is designed for large-scale factor discovery processes in quantitative finance, where speed and robust, financially sensible outputs are critical.
 
 ## Key Features
 
--   **High-Speed:** The core rolling-window estimation loop is executed in pre-compiled C, making it suitable for large asset universes and long time horizons.
--   **DataFrame I/O:** The engine accepts a standard pandas DataFrame of log returns and returns a fully formatted DataFrame of factors, abstracting away all complex C/NumPy conversions.
--   **Financially Sound:** Uses a robust QMLE (Quasi-Maximum Likelihood Estimation) methodology to ensure that the generated factors (e.g., volatility of volatility, jump intensity) are financially sensible and asset-relative.
--   **Modern Packaging:** Built using `pyproject.toml` (PEP 517/518) for reliable and robust remote installation.
+- **High-Speed Core:** The entire rolling computation loop is executed in pre-compiled C, offering maximum performance.
+- **DataFrame I/O:** The interface is strictly limited to a "DataFrame-in, DataFrame-out" design for ease of use.
+- **Robust Estimation:** Uses a high-speed QMLE (Quasi-Maximum Likelihood Estimation) heuristic to provide financially sensible, non-constant, and `NaN`-free parameter drifts.
+- **Stationary Features:** Transforms raw, non-stationary return series into a set of 8 stationary risk factors, ideal for downstream machine learning models.
 
 ## Installation
 
-You can install the package directly from the GitHub repository using `pip`. The build process requires a C compiler (available by default in most Linux/macOS environments and Colab).
+This package contains a C extension and must be compiled from source. The modern `pyproject.toml` setup handles all dependencies (like Cython and NumPy) automatically.
 
-```bash
-pip install git+https://github.com/N2304862K/SVCJ_Factor_Engine.git
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/N2304862K/SVCJ_Factor_Engine.git
+    cd SVCJ_Factor_Engine
+    ```
+
+2.  **Install the package:**
+    `pip` will automatically read `pyproject.toml`, install the build dependencies, and then compile and install the engine.
+    ```bash
+    pip install .
+    ```
 
 ## Usage
 
-The package exposes a single, high-level function: `generate_svcj_factor_matrix`. The user provides a DataFrame of log returns, and the function returns the complete factor matrix.
+The engine exposes a single, high-level function `generate_factors`. It takes a pandas DataFrame of log returns and returns a formatted DataFrame of SVCJ factors.
 
 ```python
 import pandas as pd
 import numpy as np
-from svcj_engine import generate_svcj_factor_matrix
+from svcj_engine import generate_factors # Import the main function
 
-# 1. Prepare your input data
-# The input must be a pandas DataFrame where:
+# 1. Prepare your input DataFrame
+# The input must be a DataFrame where:
 # - The index is a DatetimeIndex.
-# - The columns are your asset tickers.
+# - Each column represents an asset.
 # - The values are the daily log returns.
 
-# Example: Create a mock DataFrame of log returns for 3 assets
+# Example with mock data:
 dates = pd.date_range(start='2020-01-01', periods=500, freq='D')
 asset_data = {
-    'ASSET_A': np.random.normal(0.0001, 0.01, 500),
-    'ASSET_B': np.random.normal(0.0002, 0.02, 500),
-    'ASSET_C': np.random.normal(0.0003, 0.03, 500),
+    'LOW_VOL_ASSET': np.random.normal(0.0001, 0.01, 500),
+    'HIGH_VOL_ASSET': np.random.normal(0.0002, 0.03, 500) + 
+                     np.random.choice(, 500, p=[0.95, 0.05]) * -0.1
 }
 log_returns_df = pd.DataFrame(asset_data, index=dates)
 
-# 2. Define the rolling window parameters
-window = 126  # 6-month rolling window
-step = 5      # 1-week (5 trading days) step size
 
-# 3. Generate the factor matrix with a single function call
-# The C core handles all the complex looping and estimation internally.
-factor_matrix = generate_svcj_factor_matrix(
+# 2. Generate the SVCJ factor matrix
+# The user only needs to provide the DataFrame, window size, and step size.
+factor_matrix = generate_factors(
     log_returns_df=log_returns_df,
-    window_size=window,
-    step_size=step
+    window_size=126,  # e.g., 6-month window
+    step_size=5       # e.g., weekly roll
 )
 
-# 4. Analyze the output
-# The output is a T x (A x F) DataFrame, ready for ML models.
-print("--- Final Factor Matrix ---")
-print(f"Shape: {factor_matrix.shape}")
-print("\nSample of generated factors for ASSET_A and ASSET_B:")
+# 3. Analyze the output
+print("--- Final Factor Matrix for ML Training ---")
+print(f"Matrix Shape (Time Steps x Total Features): {factor_matrix.shape}")
+print("\nVerification of Factor Drift:")
+print(factor_matrix[['LOW_VOL_ASSET_sigma_v', 'LOW_VOL_ASSET_lambda', 'HIGH_VOL_ASSET_sigma_v', 'HIGH_VOL_ASSET_lambda']].tail())
+'''
 
-# Display key risk factors for comparison
-print(factor_matrix[['ASSET_A_sigma_v', 'ASSET_A_lambda', 'ASSET_B_sigma_v', 'ASSET_B_lambda']].tail())
-```
-
-## Output Factors
-
-The engine generates 8 distinct SVCJ risk factors for each asset at each time step. The output DataFrame columns are named using the convention `{asset_name}_{factor_name}`.
-
-The 8 factors are:
--   `mu`: The long-term drift of the asset.
--   `kappa`: The mean-reversion speed of volatility. A high value means volatility shocks dissipate quickly.
--   `theta`: The long-term average variance.
--   `sigma_v`: The volatility of volatility (the "vertical risk component"). A high value indicates an unstable risk profile.
--   `rho`: The correlation between asset returns and volatility (the leverage effect).
--   `lambda`: The intensity of price jumps. A high value indicates frequent, large, unexpected price movements.
--   `mu_J`: The average size of the price jumps.
--   `sigma_J`: The volatility of the price jumps.
-```
+##  Reference
+generate_factors(log_returns_df, window_size, step_size)
+log_returns_df (pd.DataFrame): Input DataFrame of log returns (Time x Assets).
+window_size (int): The lookback period for calculating the parameters.
+step_size (int): The frequency of the rolling calculation (e.g., 1 for daily, 5 for weekly).
+Returns (pd.DataFrame): A ready-to-use DataFrame of shape (Time_Steps x (Assets * 8 Factors)).
